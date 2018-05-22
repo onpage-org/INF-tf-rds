@@ -7,7 +7,7 @@ locals {
   tags = "${merge(
     var.tags,
     map(
-      "Module", "amicopy",
+      "Module", "rds",
       "Name", "${local.name}"
     )
   )}"
