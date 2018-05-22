@@ -1,8 +1,10 @@
-variable "cid" {}
+variable "tags" {
+  type = "map"
+  description = "common tags to add to the ressources"
+  default = {}
+}
+
 variable "domain" {}
-variable "environment" {}
-variable "owner" {}
-variable "project" {}
 
 variable "hostname" {
   default = "db"

@@ -1,12 +1,14 @@
 locals {
-  tags = {
-    CID         = "${var.cid}"
-    Environment = "${var.environment}"
-    Module      = "rds"
-    Owner       = "${var.owner}"
-    Project     = "${var.project}"
-    Pet         = "${random_pet.rds.id}"
-  }
+  name = "${var.tags["Environment"]}-rds-${var.name}"
+}
 
-  short_name = "${substr(var.environment, 0, var.short_name_length)}-${substr(var.project, 0, var.short_name_length)}-rds"
+locals {
+  short_name = "${substr("${local.name}", 0, min(20, length(local.name)))}",
+  tags = "${merge(
+    var.tags,
+    map(
+      "Module", "rds",
+      "Name", "${local.name}"
+    )
+  )}"
 }
