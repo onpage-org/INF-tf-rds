@@ -12,8 +12,8 @@ resource "aws_db_instance" "rds" {
   db_subnet_group_name        = "${aws_db_subnet_group.sng.name}"
   engine                      = "${var.engine}"
   engine_version              = "${var.engine_version}"
-  final_snapshot_identifier   = "${var.project}-${var.environment}-rds-final-snapshot"
-  identifier                  = "${var.project}-${var.environment}-rds"
+  final_snapshot_identifier   = "${local.short_name}-rds-final-snapshot"
+  identifier                  = "${local.short_name}-rds"
   instance_class              = "${var.instance_class}"
   maintenance_window          = "Mon:02:00-Mon:04:00"
   monitoring_interval         = "10"                                                                         # 10
@@ -25,7 +25,7 @@ resource "aws_db_instance" "rds" {
   snapshot_identifier         = "${var.snapshot_identifier}"
   storage_encrypted           = true
   storage_type                = "gp2"                                                                        # do not use for tablespace < 100 G
-  tags                        = "${merge(local.tags, map("Name", "${var.project}-${var.environment}-rds"))}"
+  tags                        = "${merge(local.tags)}"
   username                    = "${var.username}"
 
   vpc_security_group_ids = [
@@ -35,12 +35,10 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_subnet_group" "sng" {
   subnet_ids = ["${var.subnet_ids}"]
-  tags       = "${merge(local.tags, map("Name", "${var.project}-${var.environment}-subnet-group"))}"
+  tags       = "${merge(local.tags, map("Name", "${local.short_name}-subnet-group"))}"
 }
 
 resource "aws_security_group" "sg" {
-  // name_prefix = "${local.short_name}-default-sg"
-
   egress {
     from_port        = 0
     to_port          = 0
@@ -62,12 +60,11 @@ resource "aws_security_group" "sg" {
     cidr_blocks = ["${var.access_cidr_blocks}"]
   }
 */
-  tags   = "${merge(local.tags, map("Name", "${var.project}-${var.environment}-rds-sg"))}"
+  tags       = "${merge(local.tags, map("Name", "${local.short_name}-sg"))}"
   vpc_id = "${var.vpc_id}"
 }
 
 resource "aws_security_group" "intra" {
-  // name_prefix = "${local.short_name}-intra-sg"
-  tags   = "${merge(local.tags, map("Name", "${var.project}-${var.environment}-rds-intra"))}"
+  tags       = "${merge(local.tags, map("Name", "${local.short_name}-intra"))}"
   vpc_id = "${var.vpc_id}"
 }
