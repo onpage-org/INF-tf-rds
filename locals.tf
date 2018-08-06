@@ -1,5 +1,5 @@
 locals {
-  name = "${var.tags["Environment"]}-rds-${var.name}"
+  name = "${var.tags["Environment"]}-rds-${var.service_name}"
 }
 
 locals {
