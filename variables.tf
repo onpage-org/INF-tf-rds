@@ -6,6 +6,8 @@ variable "tags" {
 
 variable "domain" {}
 
+variable "service_name" {}
+
 variable "hostname" {
   default = "db"
 }
