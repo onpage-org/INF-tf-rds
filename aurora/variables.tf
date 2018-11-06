@@ -16,6 +16,7 @@ variable "master_username" {}
 variable "master_password" {}
 variable "availability_zones" {
   type = "list"
+  default = ["a", "b", "c"]
 }
 
 variable "backup_retention_period" {
@@ -29,5 +30,22 @@ variable "preferred_maintenance_window" {
 }
 variable "vpc_id" {}
 variable "subnet_ids" {
+  type = "list"
+}
+variable "cloudwatch_log_types" {
+  type = "list"
+  default = ["error"] // audit, error, general, slowquery
+}
+variable "performance_insights_enabled" {
+  default = true
+}
+variable "apply_immediately" {
+  default = false
+}
+variable "backtrack_window" {
+  description = "not working with aurora-mysql (as of 2018-11-06)"
+  default = 0 //172800
+}
+variable "instances" {
   type = "list"
 }
