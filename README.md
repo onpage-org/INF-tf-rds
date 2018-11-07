@@ -47,11 +47,11 @@ and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/i
     - __default__: 5.7.12
 
 - `instances`
-    - __description__: Number, priority and type of instances
+    - __description__: Number, priority and type of instances (see [Instance configuration](#instance-configuration))
     - __type__`list`
 
 - `master_credentials`
-    - __description__: Username and password for master user
+    - __description__: Username and password for master user (see [Master user credentials](#master-user-credentials))
     - __type__: `map`
 
 - `name`
