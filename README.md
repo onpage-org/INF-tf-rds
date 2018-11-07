@@ -74,7 +74,7 @@ and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/i
     - __default__: "Mon:02:00-Mon:04:00"
 
 - `subnet_ids`
-    - __description__: TODO
+    - __description__: Subnets for the Aurora RDS (should be private subnet)
     - __type__: `list`
 
 - `tags`
@@ -181,9 +181,9 @@ within the module:
 
 ## Changelog
 
-0.2.0 - Switch from RDS to Aurora RDS.
-0.1.1 - Separate variable for name generation.
-0.1.0 - Initial release.
+- 0.2.0 - Switch from RDS to Aurora RDS.
+- 0.1.1 - Separate variable for name generation.
+- 0.1.0 - Initial release.
 
 ## License
 
