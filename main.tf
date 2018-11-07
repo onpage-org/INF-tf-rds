@@ -4,20 +4,34 @@ locals {
   "availability_zones" = "${formatlist("%s%s", data.aws_region.current.name, var.availability_zones)}"
 }
 
+provider "random" {
+  version = "~> 1.1"
+}
+
+resource "random_pet" "instances" {
+  count = "${length(var.instances)}"
+  length = 1
+}
+
 resource "aws_rds_cluster_instance" "instance" {
   count = "${length(var.instances)}"
 
-  tags                            = "${var.tags}"
-  cluster_identifier              = "${aws_rds_cluster.cluster.id}"
-  identifier_prefix               = "${var.name}-"
-  engine                          = "${var.engine}"
-  engine_version                  = "${var.engine_version}"
-  instance_class                  = "${element( split(":", element( var.instances, count.index ) ), 1 )}"
-  promotion_tier                  = "${element( split(":", element( var.instances, count.index ) ), 0 )}"
-  preferred_maintenance_window    = "${var.preferred_maintenance_window}"
-  db_subnet_group_name            = "${aws_db_subnet_group.sng.id}"
+  tags                         = "${var.tags}"
+  cluster_identifier           = "${aws_rds_cluster.cluster.id}"
+  identifier                   = "${var.name}-${element(random_pet.instances.*.id, count.index)}"
+  engine                       = "${var.engine}"
+  engine_version               = "${var.engine_version}"
+  instance_class               = "${element( split(":", element( var.instances, count.index ) ), 1 )}"
+  promotion_tier               = "${element( split(":", element( var.instances, count.index ) ), 0 )}"
+  preferred_maintenance_window = "${var.preferred_maintenance_window}"
+  db_subnet_group_name         = "${aws_db_subnet_group.sng.id}"
 
-  apply_immediately               = "${var.apply_immediately}"
+  apply_immediately            = "${var.apply_immediately}"
+}
+
+resource "random_id" "final_snapshot" {
+  prefix      = "${var.name}-final-snapshot-"
+  byte_length = 8
 }
 
 resource "aws_rds_cluster" "cluster" {
@@ -31,7 +45,7 @@ resource "aws_rds_cluster" "cluster" {
   backup_retention_period         = "${var.backup_retention_period}"
   preferred_backup_window         = "${var.preferred_backup_window}"
   preferred_maintenance_window    = "${var.preferred_maintenance_window}"
-  final_snapshot_identifier       = "${var.name}-final-snapshot"
+  final_snapshot_identifier       = "${random_id.final_snapshot.hex}"
   vpc_security_group_ids          = ["${aws_security_group.sg.id}"]
   db_subnet_group_name            = "${aws_db_subnet_group.sng.id}"
   enabled_cloudwatch_logs_exports = "${var.cloudwatch_log_types}"
