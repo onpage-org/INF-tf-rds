@@ -16,6 +16,10 @@ resource "random_pet" "instances" {
 resource "aws_rds_cluster_instance" "instance" {
   count = "${length(var.instances)}"
 
+  lifecycle {
+    ignore_changes = ["identifier"]
+  }
+
   tags                         = "${var.tags}"
   cluster_identifier           = "${aws_rds_cluster.cluster.id}"
   identifier                   = "${var.name}-${element(random_pet.instances.*.id, count.index)}"
@@ -35,6 +39,10 @@ resource "random_id" "final_snapshot" {
 }
 
 resource "aws_rds_cluster" "cluster" {
+  lifecycle {
+    ignore_changes = ["final_snapshot_identifier"]
+  }
+
   tags                            = "${var.tags}"
   cluster_identifier              = "${var.name}"
   engine                          = "${var.engine}"
