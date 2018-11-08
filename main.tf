@@ -1,41 +1,70 @@
-resource "aws_db_instance" "rds" {
-  // https://www.terraform.io/docs/providers/aws/r/db_instance.html
-  // https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
-  allocated_storage = "${var.allocated_storage}"
+data "aws_region" "current" {}
 
-  allow_major_version_upgrade = false
-  apply_immediately           = true
-  auto_minor_version_upgrade  = false
-  backup_retention_period     = 30
-  backup_window               = "00:00-02:00"
-  copy_tags_to_snapshot       = true
-  db_subnet_group_name        = "${aws_db_subnet_group.sng.name}"
-  engine                      = "${var.engine}"
-  engine_version              = "${var.engine_version}"
-  final_snapshot_identifier   = "${local.short_name}-rds-final-snapshot"
-  identifier                  = "${local.short_name}-rds"
-  instance_class              = "${var.instance_class}"
-  maintenance_window          = "Mon:02:00-Mon:04:00"
-  monitoring_interval         = "10"                                                                         # 10
-  monitoring_role_arn         = "${aws_iam_role.role.arn}"
-  multi_az                    = "${var.multi_az}"
-  name                        = "${var.database_name}"
-  password                    = "${var.root_password}"
-  publicly_accessible         = "${var.publicly_accessible}"
-  snapshot_identifier         = "${var.snapshot_identifier}"
-  storage_encrypted           = true
-  storage_type                = "gp2"                                                                        # do not use for tablespace < 100 G
-  tags                        = "${merge(local.tags)}"
-  username                    = "${var.username}"
+locals {
+  "availability_zones" = "${formatlist("%s%s", data.aws_region.current.name, var.availability_zones)}"
+}
 
-  vpc_security_group_ids = [
-    "${aws_security_group.sg.id}",
-  ]
+provider "random" {
+  version = "~> 1.1"
+}
+
+resource "random_pet" "instances" {
+  count = "${length(var.instances)}"
+  length = 1
+}
+
+resource "aws_rds_cluster_instance" "instance" {
+  count = "${length(var.instances)}"
+
+  lifecycle {
+    ignore_changes = ["identifier"]
+  }
+
+  tags                         = "${var.tags}"
+  cluster_identifier           = "${aws_rds_cluster.cluster.id}"
+  identifier                   = "${var.name}-${element(random_pet.instances.*.id, count.index)}"
+  engine                       = "${var.engine}"
+  engine_version               = "${var.engine_version}"
+  instance_class               = "${element( split(":", element( var.instances, count.index ) ), 1 )}"
+  promotion_tier               = "${element( split(":", element( var.instances, count.index ) ), 0 )}"
+  preferred_maintenance_window = "${var.preferred_maintenance_window}"
+  db_subnet_group_name         = "${aws_db_subnet_group.sng.id}"
+
+  apply_immediately            = "${var.apply_immediately}"
+}
+
+resource "random_id" "final_snapshot" {
+  prefix      = "${var.name}-final-snapshot-"
+  byte_length = 8
+}
+
+resource "aws_rds_cluster" "cluster" {
+  lifecycle {
+    ignore_changes = ["final_snapshot_identifier"]
+  }
+
+  tags                            = "${var.tags}"
+  cluster_identifier              = "${var.name}"
+  engine                          = "${var.engine}"
+  engine_version                  = "${var.engine_version}"
+  availability_zones              = ["${local.availability_zones}"]
+  master_username                 = "${var.master_credentials["user"]}"
+  master_password                 = "${var.master_credentials["password"]}"
+  backup_retention_period         = "${var.backup_retention_period}"
+  preferred_backup_window         = "${var.preferred_backup_window}"
+  preferred_maintenance_window    = "${var.preferred_maintenance_window}"
+  final_snapshot_identifier       = "${random_id.final_snapshot.hex}"
+  vpc_security_group_ids          = ["${aws_security_group.sg.id}"]
+  db_subnet_group_name            = "${aws_db_subnet_group.sng.id}"
+  enabled_cloudwatch_logs_exports = "${var.cloudwatch_log_types}"
+  apply_immediately               = "${var.apply_immediately}"
+  backtrack_window                = "${var.backtrack_window}"
+  storage_encrypted               = true
 }
 
 resource "aws_db_subnet_group" "sng" {
   subnet_ids = ["${var.subnet_ids}"]
-  tags       = "${merge(local.tags, map("Name", "${local.short_name}-subnet-group"))}"
+  tags       = "${merge(var.tags, map("Name", "${var.name}-subnet-group"))}"
 }
 
 resource "aws_security_group" "sg" {
@@ -46,25 +75,21 @@ resource "aws_security_group" "sg" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  ingress {
-    from_port       = "${var.ingress_port_from}"
-    to_port         = "${var.ingress_port_to}"
-    protocol        = "tcp"
-    security_groups = ["${var.csgs}", "${aws_security_group.intra.id}"]
-  }
-
-/*  ingress {
-    from_port   = "${var.ingress_port_from}"
-    to_port     = "${var.ingress_port_to}"
-    protocol    = "tcp"
-    cidr_blocks = ["${var.access_cidr_blocks}"]
-  }
-*/
-  tags       = "${merge(local.tags, map("Name", "${local.short_name}-sg"))}"
+  tags   = "${merge(var.tags, map("Name", "${var.name}-sg"))}"
   vpc_id = "${var.vpc_id}"
 }
 
+resource "aws_security_group_rule" "sg_ingress" {
+  type                     = "ingress"
+  from_port                = "${aws_rds_cluster.cluster.port}"
+  to_port                  = "${aws_rds_cluster.cluster.port}"
+  protocol                 = "tcp"
+
+  security_group_id        = "${aws_security_group.sg.id}"
+  source_security_group_id = "${aws_security_group.intra.id}"
+}
+
 resource "aws_security_group" "intra" {
-  tags       = "${merge(local.tags, map("Name", "${local.short_name}-intra"))}"
+  tags   = "${merge(var.tags, map("Name", "${var.name}-intra"))}"
   vpc_id = "${var.vpc_id}"
 }

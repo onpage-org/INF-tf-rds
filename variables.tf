@@ -3,77 +3,50 @@ variable "tags" {
   description = "common tags to add to the ressources"
   default = {}
 }
-
 variable "domain" {}
 
-variable "service_name" {}
-
-variable "hostname" {
-  default = "db"
+variable "name" {}
+variable "engine" {
+  default = "aurora-mysql"
+}
+variable "engine_version" {
+  default = "5.7.12"
+}
+variable "master_credentials" {
+  type = "map"
+}
+variable "availability_zones" {
+  type = "list"
+  default = ["a", "b", "c"]
 }
 
-variable "short_name_length" {
-  default = 4
+variable "backup_retention_period" {
+  default = 30
 }
-
+variable "preferred_backup_window" {
+  default = "00:00-02:00"
+}
+variable "preferred_maintenance_window" {
+  default = "Mon:02:00-Mon:04:00"
+}
+variable "vpc_id" {}
 variable "subnet_ids" {
   type = "list"
 }
-
-variable "vpc_id" {}
-
-variable "instance_class" {
-  default = "db.t2.small"
+variable "cloudwatch_log_types" {
+  type = "list"
+  default = ["error"] // audit, error, general, slowquery
 }
-
-variable "allocated_storage" {
-  default = "16"
+variable "performance_insights_enabled" {
+  default = true
 }
-
-variable "csgs" {
-  type    = "list"
-  default = []
-}
-
-/*variable "access_cidr_blocks" {
-  type    = "list"
-  default = []
-}*/
-
-variable "ingress_port_from" {
-  default = 3306
-}
-
-variable "ingress_port_to" {
-  default = 3306
-}
-
-variable "root_password" {}
-
-variable "engine" {
-  default = "mysql"
-}
-
-variable "engine_version" {
-  default = "5.6.37"
-}
-
-variable "multi_az" {
+variable "apply_immediately" {
   default = false
 }
-
-variable "snapshot_identifier" {
-  default = ""
+variable "backtrack_window" {
+  description = "not working with aurora-mysql (as of 2018-11-06)"
+  default = 0 //172800
 }
-
-variable "database_name" {
-  default = "root"
-}
-
-variable "publicly_accessible" {
-  default = false
-}
-
-variable "username" {
-  default = "root"
+variable "instances" {
+  type = "list"
 }
