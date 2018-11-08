@@ -131,6 +131,13 @@ within the module:
 
 ### Instance configuration
 
+Amount, type and failover priority are specified as a list where:
+- The amount of instances is the length of the list
+- The `promotion_tier`/failover priority is a number from 0-15 (highest to
+  lowest priority)
+- Separating `:`
+- The `instance_class`/instance size (see [AWS Documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html))
+
 ```hcl
 locals {
   authentication_db_instances = {
