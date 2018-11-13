@@ -129,6 +129,31 @@ locals {
 within the module:
 `master_credentials = "${local.authentication_db_master[var.environment]}"`
 
+To not write the credentials in git, you can also use `random_string`
+
+```hcl
+resource "random_string" "username" {
+  length = 16
+  special = false
+}
+
+resource "random_string" "password" {
+  length = 20
+  special = false
+}
+
+locals {
+  lifecycle {
+    ignore_changes = ["my_db_cluster_credentials"]
+  }
+
+  "my_db_cluster_credentials" = {
+    "user" = "${random_string.username.result}"
+    "password" = "${random_string.password.result}"
+  }
+}
+```
+
 ### Instance configuration
 
 Amount, type and failover priority are specified as a list where:
@@ -157,6 +182,65 @@ locals {
 ```
 within the module:
 `instances = ["${local.authentication_db_instances[var.environment]}"]`
+
+### Using the database in Terraform
+
+Since the RDS is inside a private VPC, Terraform cannot directly use it within
+the mysql provider.
+
+Following Makefile (snippet) creates a ssh named socket over the jumphost.
+
+```Makefile
+...
+# local port for ssh named socket
+PORT       = 9000
+
+# variables to create ssh named socket
+DIR        = $(shell pwd)
+STATEFILE  = $(DIR)/.db_state
+SOCKET     = ssh-tunnel-socket
+DISCONNECT = ssh -S $(SOCKET) -O exit dev@jump$(DOMAIN)
+DB_HOST    = $(shell jq -r '.my_db_cluster_writer_fqdn.value' $(STATEFILE))
+DOMAIN     = $(subst $(noop) $(noop),., $(wordlist 2, $(words $(subst ., ,$(DB_HOST))), $(subst ., ,$(DB_HOST))))
+DB_USER    = $(shell jq -r '.my_db_cluster_master_credentials.value.user' $(STATEFILE))
+DB_PASS    = $(shell jq -r '.my_db_cluster_master_credentials.value.password' $(STATEFILE))
+DB_PORT    = $(shell jq -r '.my_db_cluster_port.value' $(STATEFILE))
+...
+
+$(STATEFILE):
+	@if ! find $(STATEFILE) -type f -mmin -5 2>/dev/null | grep . 2>/dev/null; then \
+	  cd ..;  terraform output -json > $(STATEFILE) || { rm -f $(STATEFILE); exit 1; } \
+	fi
+
+$(SOCKET): $(STATEFILE)
+	@ssh -M -S $(SOCKET) \
+		-fnNT \
+		-L "$(PORT):$(DB_HOST):$(DB_PORT)" \
+		dev@jump$(DOMAIN)
+
+test: $(SOCKET)
+	mysql -umy_db_user -p -hlocalhost --protocol=TCP -P$(PORT) -e 'show grants;'
+	$(DISCONNECT)
+
+plan: $(SOCKET)
+	terraform get
+	terraform plan -out plan
+	$(DISCONNECT)
+
+...
+
+.PHONY: test
+```
+
+which makes the database usable at `localhost:9000` when terraform is running
+
+```hcl
+provider "mysql" {
+  endpoint = "localhost:9000"
+  username = "${lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "user")}"
+  password = "${lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "password")}"
+}
+```
 
 ## Outputs
 
