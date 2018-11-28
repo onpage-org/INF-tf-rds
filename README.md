@@ -108,6 +108,9 @@ module "my_db_cluster" {
 ```
 
 ### Master user credentials
+
+the username has to start with a letter, so the username is prefixed with a 'u'
+
 ```hcl
 locals {
   authentication_db_master = {
@@ -133,7 +136,7 @@ To not write the credentials in git, you can also use `random_string`
 
 ```hcl
 resource "random_string" "username" {
-  length = 16
+  length = 15
   special = false
 }
 
@@ -148,7 +151,7 @@ locals {
   }
 
   "my_db_cluster_credentials" = {
-    "user" = "${random_string.username.result}"
+    "user" = "u${random_string.username.result}"
     "password" = "${random_string.password.result}"
   }
 }
