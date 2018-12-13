@@ -186,6 +186,15 @@ locals {
 within the module:
 `instances = ["${local.authentication_db_instances[var.environment]}"]`
 
+### Jumphost configuration
+
+as the jumphost has no access to the database you need to add the database security-group to the jumphost config
+
+the jumphost module supports this from v0.1.1 on
+
+`additional_sgs = ["${data.terraform_remote_state.database.authentication_intra_sg}"]`
+
+
 ### Using the database in Terraform
 
 Since the RDS is inside a private VPC, Terraform cannot directly use it within
