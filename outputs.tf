@@ -6,6 +6,10 @@ output "reader_fqdn" {
   value = "${aws_route53_record.reader.fqdn}"
 }
 
+output "sg" {
+  value = "${aws_security_group.sg.id}"
+}
+
 output "sg_intra" {
   value = "${aws_security_group.intra.id}"
 }

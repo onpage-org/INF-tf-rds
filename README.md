@@ -21,7 +21,7 @@ and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/i
     - __description__: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
     - __type__: `integer`
     - __default__: 0
-}
+
 - `backup_retention_period`
     - __description__: Days to keep backups
     - __type__: `integer`
@@ -31,7 +31,7 @@ and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/i
     - __description__: Log types to write to cloudwatch (audit, error, general, slowquery)
     - __type__: `list`
     - __default__: ["error"]
-}
+
 - `domain`
     - __description__: Domain in which the FQDNs are created
     - __type__: `string`
@@ -268,6 +268,10 @@ provider "mysql" {
     -  __description__: Domain name for reader endpoint
     -  __type__: `string`
 
+- `sg`
+    -  __description__: Security group for database
+    -  __type__: `string`
+
 - `sg_intra`
     -  __description__: Security group allowed for access
     -  __type__: `string`
@@ -284,6 +288,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.
 - 0.1.1 - Separate variable for name generation.
 - 0.1.0 - Initial release.
