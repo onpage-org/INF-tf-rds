@@ -92,7 +92,7 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 ### module
 ```
 module "my_db_cluster" {
-  source = "git@github.com:ryte/INF-tf-rds.git?ref=v0.2.0"
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.0"
 
   tags                 = "${local.common_tags}"
   domain               = "${local.domain}"
