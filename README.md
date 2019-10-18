@@ -3,7 +3,7 @@
 Terraform module for deploying an Aurora RDS cluster
 
 This project is [internal open source](https://en.wikipedia.org/wiki/Inner_source)
-and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/inf).
+and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 
 ## Module Input Variables
 
@@ -92,7 +92,7 @@ and currently maintained by the [INF](https://github.com/orgs/onpage-org/teams/i
 ### module
 ```
 module "my_db_cluster" {
-  source = "git@github.com:onpage-org/INF-tf-rds.git?ref=v0.2.0"
+  source = "git@github.com:ryte/INF-tf-rds.git?ref=v0.2.0"
 
   tags                 = "${local.common_tags}"
   domain               = "${local.domain}"
