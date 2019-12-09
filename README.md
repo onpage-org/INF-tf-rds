@@ -94,16 +94,16 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 module "my_db_cluster" {
   source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.0"
 
-  tags                 = "${local.common_tags}"
-  domain               = "${local.domain}"
+  tags                 = local.common_tags
+  domain               = local.domain
   name                 = "my_db_cluster_name"
   engine               = "aurora-mysql"
   engine_version       = "5.7.12"
-  master_credentials   = "${local.authentication_db_master[var.environment]}"
-  vpc_id               = "${data.terraform_remote_state.vpc.vpc_id}"
-  subnet_ids           = "${data.terraform_remote_state.vpc.subnet_private}"
+  master_credentials   = local.authentication_db_master[var.environment]
+  vpc_id               = data.terraform_remote_state.vpc.vpc_id
+  subnet_ids           = data.terraform_remote_state.vpc.subnet_private
 
-  instances = ["${local.authentication_db_instances[var.environment]}"]
+  instances = local.authentication_db_instances[var.environment]
 }
 ```
 
@@ -130,7 +130,7 @@ locals {
 }
 ```
 within the module:
-`master_credentials = "${local.authentication_db_master[var.environment]}"`
+`master_credentials = local.authentication_db_master[var.environment]`
 
 To not write the credentials in git, you can also use `random_string`
 
@@ -152,7 +152,7 @@ locals {
 
   "my_db_cluster_credentials" = {
     "user" = "u${random_string.username.result}"
-    "password" = "${random_string.password.result}"
+    "password" = random_string.password.result
   }
 }
 ```
@@ -184,7 +184,7 @@ locals {
 }
 ```
 within the module:
-`instances = ["${local.authentication_db_instances[var.environment]}"]`
+`instances = local.authentication_db_instances[var.environment]`
 
 ### Jumphost configuration
 
@@ -192,7 +192,7 @@ as the jumphost has no access to the database you need to add the database secur
 
 the jumphost module supports this from v0.1.1 on
 
-`additional_sgs = ["${data.terraform_remote_state.database.authentication_intra_sg}"]`
+`additional_sgs = [data.terraform_remote_state.database.authentication_intra_sg]`
 
 
 ### Using the database in Terraform
@@ -249,8 +249,8 @@ which makes the database usable at `localhost:9000` when terraform is running
 ```hcl
 provider "mysql" {
   endpoint = "localhost:9000"
-  username = "${lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "user")}"
-  password = "${lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "password")}"
+  username = lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "user")
+  password = lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "password")
 }
 ```
 
@@ -288,6 +288,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.3.0 - Upgrade to terraform 0.12.x
 - 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.
 - 0.1.1 - Separate variable for name generation.
