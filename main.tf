@@ -43,10 +43,10 @@ resource "aws_rds_cluster" "cluster" {
     ignore_changes = [final_snapshot_identifier]
   }
 
-  tags               = var.tags
-  cluster_identifier = var.name
-  engine             = var.engine
-  engine_version     = var.engine_version
+  tags                            = var.tags
+  cluster_identifier              = var.name
+  engine                          = var.engine
+  engine_version                  = var.engine_version
   availability_zones              = local.availability_zones
   master_username                 = var.master_credentials["user"]
   master_password                 = var.master_credentials["password"]
