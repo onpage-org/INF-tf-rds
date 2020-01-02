@@ -65,6 +65,10 @@ variable "backtrack_window" {
 }
 
 variable "instances" {
-  type = list(string)
+  type = map(object({
+    instance_type = string
+    tier          = number
+  }))
+  description = "map of objects for rds instances"
+  default     = {}
 }
-

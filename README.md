@@ -47,7 +47,7 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     - __default__: 5.7.12
 
 - `instances`
-    - __description__: Number, priority and type of instances (see [Instance configuration](#instance-configuration))
+    - __description__: priority and type of instances (see [Instance configuration](#instance-configuration))
     - __type__`list`
 
 - `master_credentials`
@@ -90,7 +90,7 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 ## Usage
 
 ### module
-```
+```hcl
 module "my_db_cluster" {
   source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.0"
 
@@ -169,16 +169,35 @@ Amount, type and failover priority are specified as a list where:
 ```hcl
 locals {
   authentication_db_instances = {
-    "development" = [
-      "0:db.t2.small",
-    ]
+    "development" = {
+      main = {
+        tier          = 0
+        instance_type = "db.t3.small"
+      }
+      secondary = {
+        tier          = 0
+        instance_type = "db.t3.small"
+      }
+    }
     "testing" = [
-      "0:db.t2.small",
-      "0:db.t2.small",
+      main = {
+        tier          = 0
+        instance_type = "db.t3.small"
+      }
+      secondary = {
+        tier          = 1
+        instance_type = "db.t3.small"
+      }
     ]
     "production" = [
-      "1:db.t2.medium",
-      "0:db.r3.large",
+      main = {
+        tier          = 0
+        instance_type = "db.r5.large"
+      }
+      secondary = {
+        tier          = 1
+        instance_type = "db.t3.medium"
+      }
     ]
   }
 }
@@ -288,6 +307,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.3.1 - use map instead of list for instance config
 - 0.3.0 - Upgrade to terraform 0.12.x
 - 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.

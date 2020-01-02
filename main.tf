@@ -8,13 +8,8 @@ locals {
 provider "random" {
 }
 
-resource "random_pet" "instances" {
-  count  = length(var.instances)
-  length = 1
-}
-
 resource "aws_rds_cluster_instance" "instance" {
-  count = length(var.instances)
+  for_each = var.instances
 
   lifecycle {
     ignore_changes = [identifier]
@@ -22,15 +17,14 @@ resource "aws_rds_cluster_instance" "instance" {
 
   tags                         = var.tags
   cluster_identifier           = aws_rds_cluster.cluster.id
-  identifier                   = "${var.name}-${element(random_pet.instances.*.id, count.index)}"
+  identifier                   = "${var.name}-${each.key}"
   engine                       = var.engine
   engine_version               = var.engine_version
-  instance_class               = element(split(":", element(var.instances, count.index)), 1)
-  promotion_tier               = element(split(":", element(var.instances, count.index)), 0)
+  instance_class               = each.value.instance_type
+  promotion_tier               = each.value.tier
   preferred_maintenance_window = var.preferred_maintenance_window
   db_subnet_group_name         = aws_db_subnet_group.sng.id
-
-  apply_immediately = var.apply_immediately
+  apply_immediately            = var.apply_immediately
 }
 
 resource "random_id" "final_snapshot" {
