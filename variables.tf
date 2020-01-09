@@ -22,11 +22,6 @@ variable "master_credentials" {
   type = map(string)
 }
 
-variable "availability_zones" {
-  type    = list(string)
-  default = ["a", "b", "c"]
-}
-
 variable "backup_retention_period" {
   default = 30
 }

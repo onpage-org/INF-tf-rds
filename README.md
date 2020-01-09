@@ -12,11 +12,6 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     - __type__: `boolean`
     - __default__: false
 
-- `availability_zones`
-    - __description__: Availability zone postfixes for the cluster
-    - __type__: `list`
-    - __default__: ["a", "b", "c"]
-
 - `backtrack_window`
     - __description__: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
     - __type__: `integer`
@@ -86,6 +81,13 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     -  __description__: VPC id the subnets will be defined in
     -  __type__: `string`
 
+
+## Dependencies
+
+### random
+```hcl
+provider "random" {}
+```
 
 ## Usage
 
@@ -307,7 +309,7 @@ provider "mysql" {
 
 ## Changelog
 
-- 0.3.1 - use map instead of list for instance config
+- 0.4.0 - use map instead of list for instance config and use data for availibility zones now
 - 0.3.0 - Upgrade to terraform 0.12.x
 - 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.

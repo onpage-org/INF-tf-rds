@@ -1,19 +1,8 @@
-data "aws_region" "current" {
-}
-
-locals {
-  availability_zones = formatlist("%s%s", data.aws_region.current.name, var.availability_zones)
-}
-
-provider "random" {
-}
+data "aws_region" "current" {}
+data "aws_availability_zones" "available" {}
 
 resource "aws_rds_cluster_instance" "instance" {
   for_each = var.instances
-
-  lifecycle {
-    ignore_changes = [identifier]
-  }
 
   tags                         = var.tags
   cluster_identifier           = aws_rds_cluster.cluster.id
@@ -41,7 +30,7 @@ resource "aws_rds_cluster" "cluster" {
   cluster_identifier              = var.name
   engine                          = var.engine
   engine_version                  = var.engine_version
-  availability_zones              = local.availability_zones
+  availability_zones              = data.aws_availability_zones.available.names
   master_username                 = var.master_credentials["user"]
   master_password                 = var.master_credentials["password"]
   backup_retention_period         = var.backup_retention_period
