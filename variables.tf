@@ -22,11 +22,6 @@ variable "master_credentials" {
   type = map(string)
 }
 
-variable "availability_zones" {
-  type    = list(string)
-  default = ["a", "b", "c"]
-}
-
 variable "backup_retention_period" {
   default = 30
 }
@@ -65,6 +60,10 @@ variable "backtrack_window" {
 }
 
 variable "instances" {
-  type = list(string)
+  type = map(object({
+    instance_type = string
+    tier          = number
+  }))
+  description = "map of objects for rds instances"
+  default     = {}
 }
-
