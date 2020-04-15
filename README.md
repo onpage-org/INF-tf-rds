@@ -17,6 +17,11 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     - __type__: `list`
     - __default__: ["a", "b", "c"]
 
+- `auto_pause`
+    - __description__:  `serverless` only. Whether to enable automatic pause. A DB cluster can be paused only when it's idle (it has no connections)
+    - __type__: `string`
+    - __default__: "false"
+
 - `backtrack_window`
     - __description__: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
     - __type__: `integer`
@@ -37,12 +42,12 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     - __type__: `string`
 
 - `engine`
-    - __description__: Aurora RDS engine (aurora-mysql or aurora-postgresql)
+    - __description__: Aurora RDS engine (aurora-mysql or aurora-postgresql), for **serverless** engine must be set as **aurora**
     - __type__: `string`
     - __default__: aurora-mysql
 
 - `engine_version`
-    - __description__: Version of the DB engine
+    - __description__: Version of the DB engine, for **serverless** engine_version must be set as **5.6.10a**
     - __type__: `string`
     - __default__: 5.7.12
 
@@ -53,6 +58,16 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 - `master_credentials`
     - __description__: Username and password for master user (see [Master user credentials](#master-user-credentials))
     - __type__: `map`
+
+- `min_capacity`
+    - __description__: `serverless` only. The maximum capacity. Valid capacity values are 1, 2, 4, 8, 16, 32, 64, 128, and 256
+    - __type__: `string`
+    - __default__: 1
+
+- `max_capacity`
+    - __description__: `serverless` only. The maximum capacity. Valid capacity values are 1, 2, 4, 8, 16, 32, 64, 128, and 256
+    - __type__: `string`
+    - __default__: 2
 
 - `name`
     -  __description__: Cluster name and instance name prefix (also used to generate FQDNs)
@@ -76,6 +91,11 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 - `subnet_ids`
     - __description__: Subnets for the Aurora RDS (should be private subnet)
     - __type__: `list`
+
+- `seconds_until_auto_pause`
+    - __description__: `serverless` only. The time, in seconds, before an Aurora DB cluster in serverless mode is paused. Valid values are *300* through *86400*
+    - __type__: `string`    
+    -  __default__: 300
 
 - `tags`
     -  __description__: a map of tags which is added to all supporting ressources
@@ -104,6 +124,31 @@ module "my_db_cluster" {
   subnet_ids           = "${data.terraform_remote_state.vpc.subnet_private}"
 
   instances = ["${local.authentication_db_instances[var.environment]}"]
+}
+```
+
+#### Aurora Serverless
+```hcl
+module "serverless" {
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.2"
+
+  tags                     = "${local.common_tags}"
+  domain                   = "${local.domain}"
+  name                     = "my_db_cluster_name"
+  engine                   = "aurora"
+  engine_mode              = "serverless"
+  engine_version           = "5.6.10a"
+  master_credentials       = "${local.authentication_db_credentials}"
+  vpc_id                   = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids               = "${data.terraform_remote_state.vpc.subnet_private}"
+  apply_immediately        = true
+  availability_zones       = ["a", "b", "c"]
+  backtrack_window         = 0
+  backup_retention_period  = 30
+  auto_pause               = true
+  max_capacity             = 2
+  min_capacity             = 1
+  seconds_until_auto_pause = 300
 }
 ```
 
@@ -288,6 +333,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.2.2 - Added serverless engine_mode
 - 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.
 - 0.1.1 - Separate variable for name generation.

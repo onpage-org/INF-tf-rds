@@ -3,7 +3,7 @@ output "writer_fqdn" {
 }
 
 output "reader_fqdn" {
-  value = "${aws_route53_record.reader.fqdn}"
+  value = "${join(",",aws_route53_record.reader.*.fqdn)}"
 }
 
 output "sg" {
@@ -15,9 +15,9 @@ output "sg_intra" {
 }
 
 output "cluster_arn" {
-  value = "${aws_rds_cluster.cluster.arn}"
+  value = "${var.engine_mode != "serverless" ? join(",",aws_rds_cluster.cluster.*.arn) : join(",",aws_rds_cluster.serverless.*.arn)}"
 }
 
 output "cluster_port" {
-  value = "${aws_rds_cluster.cluster.port}"
+  value = "${var.engine_mode != "serverless" ? join(",",aws_rds_cluster.cluster.*.arn) : join(",",aws_rds_cluster.serverless.*.arn)}"
 }
