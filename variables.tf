@@ -85,3 +85,11 @@ variable "min_capacity" {
 variable "seconds_until_auto_pause" {
   default = 300
 }
+
+variable "db_cluster_parameter_group_name" {
+  default = ""
+}
+
+variable "db_instance_parameter_group_name" {
+  default = ""
+}

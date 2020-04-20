@@ -41,6 +41,16 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
     - __description__: Domain in which the FQDNs are created
     - __type__: `string`
 
+- `db_cluster_parameter_group_name`
+    - __description__: (Optional) A cluster parameter group to associate with the cluster.
+    - __type__: `string`
+    - __default__: ""
+
+- `db_instance_parameter_group_name`
+    - __description__: (Optional) The name of the DB parameter group to associate with this instance.
+    - __type__: `string`
+    - __default__: ""
+
 - `engine`
     - __description__: Aurora RDS engine (aurora-mysql or aurora-postgresql), for **serverless** engine must be set as **aurora**
     - __type__: `string`
@@ -333,6 +343,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.2.3 - Added DB cluster and DB instance parameter group
 - 0.2.2 - Added serverless engine_mode
 - 0.2.1 - Added sg to output
 - 0.2.0 - Switch from RDS to Aurora RDS.
