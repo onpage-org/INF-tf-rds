@@ -29,6 +29,7 @@ resource "aws_rds_cluster_instance" "instance" {
   promotion_tier               = "${element( split(":", element( var.instances, count.index ) ), 0 )}"
   preferred_maintenance_window = "${var.preferred_maintenance_window}"
   db_subnet_group_name         = "${aws_db_subnet_group.sng.id}"
+  db_parameter_group_name      = "${var.db_instance_parameter_group_name}"
 
   apply_immediately = "${var.apply_immediately}"
 }
@@ -62,6 +63,7 @@ resource "aws_rds_cluster" "cluster" {
   apply_immediately               = "${var.apply_immediately}"
   backtrack_window                = "${var.backtrack_window}"
   storage_encrypted               = true
+  db_cluster_parameter_group_name = "${var.db_cluster_parameter_group_name}"
 }
 
 resource "aws_rds_cluster" "serverless" {
@@ -71,23 +73,24 @@ resource "aws_rds_cluster" "serverless" {
     ignore_changes = ["final_snapshot_identifier", "engine_version"]
   }
 
-  tags                         = "${var.tags}"
-  cluster_identifier           = "${var.name}"
-  engine                       = "${var.engine}"
-  engine_version               = "${var.engine_version}"
-  engine_mode                  = "serverless"
-  availability_zones           = ["${local.availability_zones}"]
-  master_username              = "${var.master_credentials["user"]}"
-  master_password              = "${var.master_credentials["password"]}"
-  backup_retention_period      = "${var.backup_retention_period}"
-  preferred_backup_window      = "${var.preferred_backup_window}"
-  preferred_maintenance_window = "${var.preferred_maintenance_window}"
-  final_snapshot_identifier    = "${random_id.final_snapshot.hex}"
-  vpc_security_group_ids       = ["${aws_security_group.sg.id}"]
-  db_subnet_group_name         = "${aws_db_subnet_group.sng.id}"
-  apply_immediately            = "${var.apply_immediately}"
-  backtrack_window             = "${var.backtrack_window}"
-  storage_encrypted            = true
+  tags                            = "${var.tags}"
+  cluster_identifier              = "${var.name}"
+  engine                          = "${var.engine}"
+  engine_version                  = "${var.engine_version}"
+  engine_mode                     = "serverless"
+  availability_zones              = ["${local.availability_zones}"]
+  master_username                 = "${var.master_credentials["user"]}"
+  master_password                 = "${var.master_credentials["password"]}"
+  backup_retention_period         = "${var.backup_retention_period}"
+  preferred_backup_window         = "${var.preferred_backup_window}"
+  preferred_maintenance_window    = "${var.preferred_maintenance_window}"
+  final_snapshot_identifier       = "${random_id.final_snapshot.hex}"
+  vpc_security_group_ids          = ["${aws_security_group.sg.id}"]
+  db_subnet_group_name            = "${aws_db_subnet_group.sng.id}"
+  apply_immediately               = "${var.apply_immediately}"
+  backtrack_window                = "${var.backtrack_window}"
+  storage_encrypted               = true
+  db_cluster_parameter_group_name = "${var.db_cluster_parameter_group_name}"
 
   scaling_configuration {
     auto_pause               = "${var.auto_pause}"
