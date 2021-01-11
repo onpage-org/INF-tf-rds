@@ -4,7 +4,7 @@ data "aws_availability_zones" "available" {}
 resource "aws_rds_cluster_instance" "instance" {
   for_each = var.instances
 
-  tags                         = var.tags
+  tags                         = merge(var.tags, {type = "db"})
   cluster_identifier           = aws_rds_cluster.cluster.id
   identifier                   = "${var.name}-${each.key}"
   engine                       = var.engine
@@ -26,7 +26,7 @@ resource "aws_rds_cluster" "cluster" {
     ignore_changes = [final_snapshot_identifier]
   }
 
-  tags                            = var.tags
+  tags                            = merge(var.tags, {type = "db"})
   cluster_identifier              = var.name
   engine                          = var.engine
   engine_version                  = var.engine_version
@@ -91,4 +91,3 @@ resource "aws_security_group" "intra" {
   )
   vpc_id = var.vpc_id
 }
-

@@ -21,4 +21,3 @@ output "cluster_arn" {
 output "cluster_port" {
   value = aws_rds_cluster.cluster.port
 }
-
