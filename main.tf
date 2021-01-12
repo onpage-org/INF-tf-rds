@@ -4,7 +4,7 @@ data "aws_availability_zones" "available" {}
 resource "aws_rds_cluster_instance" "instance" {
   for_each = var.instances
 
-  tags                         = merge(var.tags, {type = "db"})
+  tags                         = merge(local.tags, {type = "db"})
   cluster_identifier           = aws_rds_cluster.cluster.id
   identifier                   = "${var.name}-${each.key}"
   engine                       = var.engine
@@ -26,7 +26,7 @@ resource "aws_rds_cluster" "cluster" {
     ignore_changes = [final_snapshot_identifier]
   }
 
-  tags                            = merge(var.tags, {type = "db"})
+  tags                            = merge(local.tags, {type = "db"})
   cluster_identifier              = var.name
   engine                          = var.engine
   engine_version                  = var.engine_version
@@ -48,7 +48,7 @@ resource "aws_rds_cluster" "cluster" {
 resource "aws_db_subnet_group" "sng" {
   subnet_ids = var.subnet_ids
   tags = merge(
-    var.tags,
+    local.tags,
     {
       "Name" = "${var.name}-subnet-group"
     },
@@ -64,7 +64,7 @@ resource "aws_security_group" "sg" {
   }
 
   tags = merge(
-    var.tags,
+    local.tags,
     {
       "Name" = "${var.name}-sg"
     },
@@ -84,7 +84,7 @@ resource "aws_security_group_rule" "sg_ingress" {
 
 resource "aws_security_group" "intra" {
   tags = merge(
-    var.tags,
+    local.tags,
     {
       "Name" = "${var.name}-intra"
     },
