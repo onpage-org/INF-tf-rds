@@ -94,7 +94,7 @@ provider "random" {}
 ### module
 ```hcl
 module "my_db_cluster" {
-  source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.0"
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.4.1"
 
   tags                 = local.common_tags
   domain               = local.domain
@@ -309,6 +309,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.4.1 - Set cost allocation tags
 - 0.4.0 - use map instead of list for instance config and use data for availibility zones now
 - 0.3.0 - Upgrade to terraform 0.12.x
 - 0.2.1 - Added sg to output

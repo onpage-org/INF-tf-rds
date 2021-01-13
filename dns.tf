@@ -25,4 +25,3 @@ resource "aws_route53_record" "reader" {
   type    = "CNAME"
   zone_id = data.aws_route53_zone.zone.id
 }
-
