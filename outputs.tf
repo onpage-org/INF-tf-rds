@@ -1,23 +1,29 @@
 output "writer_fqdn" {
-  value = aws_route53_record.writer.fqdn
+  description = "Domain name for writer endpoint"
+  value       = aws_route53_record.writer.fqdn
 }
 
 output "reader_fqdn" {
-  value = aws_route53_record.reader.fqdn
+  description = "Domain name for reader endpoint"
+  value       = aws_route53_record.reader.fqdn
 }
 
 output "sg" {
-  value = aws_security_group.sg.id
+  description = "Security group for database"
+  value       = aws_security_group.sg.id
 }
 
 output "sg_intra" {
-  value = aws_security_group.intra.id
+  description = "Security group allowed for access"
+  value       = aws_security_group.intra.id
 }
 
 output "cluster_arn" {
-  value = aws_rds_cluster.cluster.arn
+  description = "Aurora RDS cluster ARN"
+  value       = aws_rds_cluster.cluster.arn
 }
 
 output "cluster_port" {
-  value = aws_rds_cluster.cluster.port
+  description = "Database port"
+  value       = aws_rds_cluster.cluster.port
 }
