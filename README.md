@@ -5,90 +5,189 @@ Terraform module for deploying an Aurora RDS cluster
 This project is [internal open source](https://en.wikipedia.org/wiki/Inner_source)
 and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 
-## Module Input Variables
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
 
-- `apply_immediately`
-    - __description__: Specifies whether any cluster modifications are applied immediately, or during the next maintenance window
-    - __type__: `boolean`
-    - __default__: false
+The following requirements are needed by this module:
 
-- `backtrack_window`
-    - __description__: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
-    - __type__: `integer`
-    - __default__: 0
+- terraform (>= 0.12)
 
-- `backup_retention_period`
-    - __description__: Days to keep backups
-    - __type__: `integer`
-    - __default__: 30
+## Providers
 
-- `cloudwatch_log_types`
-    - __description__: Log types to write to cloudwatch (audit, error, general, slowquery)
-    - __type__: `list`
-    - __default__: ["error"]
+The following providers are used by this module:
 
-- `domain`
-    - __description__: Domain in which the FQDNs are created
-    - __type__: `string`
+- aws
 
-- `engine`
-    - __description__: Aurora RDS engine (aurora-mysql or aurora-postgresql)
-    - __type__: `string`
-    - __default__: aurora-mysql
+- random
 
-- `engine_version`
-    - __description__: Version of the DB engine
-    - __type__: `string`
-    - __default__: 5.7.12
+## Required Inputs
 
-- `instances`
-    - __description__: priority and type of instances (see [Instance configuration](#instance-configuration))
-    - __type__`list`
+The following input variables are required:
 
-- `master_credentials`
-    - __description__: Username and password for master user (see [Master user credentials](#master-user-credentials))
-    - __type__: `map`
+### domain
 
-- `name`
-    -  __description__: Cluster name and instance name prefix (also used to generate FQDNs)
-    -  __type__: `string`
+Description: Domain in which the FQDNs are created
 
-- `performance_insights_enabled`
-    - __description__: Enable performance insights
-    - __type__: `boolean`
-    - __default__: true
+Type: `any`
 
-- `preferred_backup_window`
-    - __description__: The daily time range (UTC) during which automated backups are created if automated backups are enabled
-    - __type__: `string`
-    - __default__: "00:00-02:00"
+### master\_credentials
 
-- `preferred_maintenance_window`
-    - __description__: The weekly time range (UTC) during which system maintenance can occur
-    - __type__: `string`
-    - __default__: "Mon:02:00-Mon:04:00"
+Description: Username and password for master user (see [Master user credentials](#master-user-credentials))
 
-- `subnet_ids`
-    - __description__: Subnets for the Aurora RDS (should be private subnet)
-    - __type__: `list`
+Type: `map(string)`
 
-- `tags`
-    -  __description__: a map of tags which is added to all supporting ressources
-    -  __type__: `map`
-    -  __default__: {}
+### name
 
-- `vpc_id`
-    -  __description__: VPC id the subnets will be defined in
-    -  __type__: `string`
+Description: Cluster name and instance name prefix (also used to generate FQDNs)
 
+Type: `any`
 
-## Dependencies
+### subnet\_ids
 
-### random
-```hcl
-provider "random" {}
+Description: Subnets for the Aurora RDS (should be private subnet)
+
+Type: `list(string)`
+
+### vpc\_id
+
+Description: VPC id the subnets will be defined in
+
+Type: `any`
+
+## Optional Inputs
+
+The following input variables are optional (have default values):
+
+### apply\_immediately
+
+Description: Specifies whether any cluster modifications are applied immediately, or during the next maintenance window
+
+Type: `bool`
+
+Default: `false`
+
+### backtrack\_window
+
+Description: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
+
+Type: `number`
+
+Default: `0`
+
+### backup\_retention\_period
+
+Description: Days to keep backups
+
+Type: `number`
+
+Default: `30`
+
+### cloudwatch\_log\_types
+
+Description: Log types to write to cloudwatch (audit, error, general, slowquery)
+
+Type: `list(string)`
+
+Default:
+
+```json
+[
+  "error"
+]
 ```
 
+### engine
+
+Description: Aurora RDS engine (aurora-mysql or aurora-postgresql)
+
+Type: `string`
+
+Default: `"aurora-mysql"`
+
+### engine\_version
+
+Description: Version of the DB engine
+
+Type: `string`
+
+Default: `"5.7.12"`
+
+### instances
+
+Description: priority and type of instances (see [Instance configuration](#instance-configuration))
+
+Type:
+
+```hcl
+map(object({
+    instance_type = string
+    tier          = number
+  }))
+```
+
+Default: `{}`
+
+### performance\_insights\_enabled
+
+Description: Enable performance insights
+
+Type: `bool`
+
+Default: `true`
+
+### preferred\_backup\_window
+
+Description: The daily time range (UTC) during which automated backups are created if automated backups are enabled
+
+Type: `string`
+
+Default: `"00:00-02:00"`
+
+### preferred\_maintenance\_window
+
+Description: The weekly time range (UTC) during which system maintenance can occur
+
+Type: `string`
+
+Default: `"Mon:02:00-Mon:04:00"`
+
+### tags
+
+Description: common tags to add to the ressources
+
+Type: `map(string)`
+
+Default: `{}`
+
+## Outputs
+
+The following outputs are exported:
+
+### cluster\_arn
+
+Description: Aurora RDS cluster ARN
+
+### cluster\_port
+
+Description: Database port
+
+### reader\_fqdn
+
+Description: Domain name for reader endpoint
+
+### sg
+
+Description: Security group for database
+
+### sg\_intra
+
+Description: Security group allowed for access
+
+### writer\_fqdn
+
+Description: Domain name for writer endpoint
+
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Usage
 
 ### module
@@ -274,32 +373,6 @@ provider "mysql" {
   password = lookup(data.terraform_remote_state.database.my_db_cluster_master_credentials, "password")
 }
 ```
-
-## Outputs
-
-- `cluster_arn`
-    -  __description__: Aurora RDS cluster ARN
-    -  __type__: `string`
-
-- `cluster_port`
-    -  __description__: Database port
-    -  __type__: `string`
-
-- `reader_fqdn`
-    -  __description__: Domain name for reader endpoint
-    -  __type__: `string`
-
-- `sg`
-    -  __description__: Security group for database
-    -  __type__: `string`
-
-- `sg_intra`
-    -  __description__: Security group allowed for access
-    -  __type__: `string`
-
-- `writer_fqdn`
-    -  __description__: Domain name for writer endpoint
-    -  __type__: `string`
 
 
 ## Authors
