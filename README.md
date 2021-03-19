@@ -199,49 +199,27 @@ module "my_db_cluster" {
   domain               = local.domain
   name                 = "my_db_cluster_name"
   engine               = "aurora-mysql"
-  engine_version       = "5.7.12"
-  master_credentials   = local.authentication_db_master[var.environment]
+  engine_version       = "5.7.mysql_aurora.2.07.2"
+  master_credentials   = local.my_db_cluster_credentials
   vpc_id               = data.terraform_remote_state.vpc.vpc_id
   subnet_ids           = data.terraform_remote_state.vpc.subnet_private
 
-  instances = local.authentication_db_instances[var.environment]
+  instances = local.my_db_instances[var.environment]
 }
 ```
 
 ### Master user credentials
 
-the username has to start with a letter, so the username is prefixed with a 'u'
+To not write the credentials in git, we use `random_id` and `random_password`.
+The username has to start with a letter, so the username is prefixed with a 'u'.
 
 ```hcl
-locals {
-  authentication_db_master = {
-    "development" = {
-      "user" = "root"
-      "password" = "..."
-    }
-    "testing" = {
-      "user" = "root"
-      "password" = "..."
-    }
-    "production" = {
-      "user" = "master_user"
-      "password" = "..."
-    }
-  }
-}
-```
-within the module:
-`master_credentials = local.authentication_db_master[var.environment]`
-
-To not write the credentials in git, you can also use `random_string`
-
-```hcl
-resource "random_string" "username" {
-  length = 15
-  special = false
+resource "random_id" "username" {
+  byte_length = 8
+  prefix      = "u"
 }
 
-resource "random_string" "password" {
+resource "random_password" "password" {
   length = 20
   special = false
 }
@@ -252,8 +230,8 @@ locals {
   }
 
   "my_db_cluster_credentials" = {
-    "user" = "u${random_string.username.result}"
-    "password" = random_string.password.result
+    "user"     = random_id.username.hex
+    "password" = random_password.password.result
   }
 }
 ```
@@ -269,7 +247,7 @@ Amount, type and failover priority are specified as a list where:
 
 ```hcl
 locals {
-  authentication_db_instances = {
+  my_db_instances = {
     "development" = {
       main = {
         tier          = 0
@@ -304,7 +282,7 @@ locals {
 }
 ```
 within the module:
-`instances = local.authentication_db_instances[var.environment]`
+`instances = local.my_db_instances[var.environment]`
 
 ### Jumphost configuration
 
@@ -312,7 +290,7 @@ as the jumphost has no access to the database you need to add the database secur
 
 the jumphost module supports this from v0.1.1 on
 
-`additional_sgs = [data.terraform_remote_state.database.authentication_intra_sg]`
+`additional_sgs = [data.terraform_remote_state.database.my_db_cluster_intra_sg]`
 
 
 ### Using the database in Terraform
@@ -350,8 +328,8 @@ $(SOCKET): $(STATEFILE)
 		-L "$(PORT):$(DB_HOST):$(DB_PORT)" \
 		dev@jump$(DOMAIN)
 
-test: $(SOCKET)
-	mysql -umy_db_user -p -hlocalhost --protocol=TCP -P$(PORT) -e 'show grants;'
+mysql-shell: $(SOCKET)
+	mysql -u$(DB_USER) -p$(DB_PASS) -hlocalhost --protocol=TCP -P$(PORT)
 	$(DISCONNECT)
 
 plan: $(SOCKET)
@@ -359,9 +337,17 @@ plan: $(SOCKET)
 	terraform plan -out plan
 	$(DISCONNECT)
 
-...
+apply: $(SOCKET)
+	@$(MAKE) -f ../Makefile $@
+	$(DISCONNECT)
 
-.PHONY: test
+destroy: $(SOCKET)
+	@$(MAKE) -f ../Makefile $@
+	$(DISCONNECT)
+
+%: force
+	@$(MAKE) -f ../Makefile $@
+force: ;
 ```
 
 which makes the database usable at `localhost:9000` when terraform is running
