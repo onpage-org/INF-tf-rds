@@ -72,6 +72,19 @@ resource "aws_security_group" "sg" {
   vpc_id = var.vpc_id
 }
 
+resource "aws_security_group_rule" "allow_sg" {
+  count = length(var.allow_from_sgs)
+
+  type      = "ingress"
+  from_port = aws_rds_cluster.cluster.port
+  to_port   = aws_rds_cluster.cluster.port
+  protocol  = "tcp"
+
+  source_security_group_id = var.allow_from_sgs[count.index]
+  security_group_id        = aws_security_group.sg.id
+}
+
+// DEPRECATED
 resource "aws_security_group_rule" "sg_ingress" {
   type      = "ingress"
   from_port = aws_rds_cluster.cluster.port
@@ -82,6 +95,7 @@ resource "aws_security_group_rule" "sg_ingress" {
   source_security_group_id = aws_security_group.intra.id
 }
 
+// DEPRECATED
 resource "aws_security_group" "intra" {
   tags = merge(
     local.tags,

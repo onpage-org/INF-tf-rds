@@ -58,6 +58,14 @@ Type: `any`
 
 The following input variables are optional (have default values):
 
+### allow\_from\_sgs
+
+Description: a list of security groups for which ingress rules are created
+
+Type: `list`
+
+Default: `[]`
+
 ### apply\_immediately
 
 Description: Specifies whether any cluster modifications are applied immediately, or during the next maintenance window
@@ -181,7 +189,7 @@ Description: Security group for database
 
 ### sg\_intra
 
-Description: Security group allowed for access
+Description: DEPRECATED: Security group allowed for access
 
 ### writer\_fqdn
 
@@ -193,7 +201,7 @@ Description: Domain name for writer endpoint
 ### module
 ```hcl
 module "my_db_cluster" {
-  source = "github.com/ryte/INF-tf-rds.git?ref=v0.4.1"
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.5.0"
 
   tags                 = local.common_tags
   domain               = local.domain
@@ -203,6 +211,11 @@ module "my_db_cluster" {
   master_credentials   = local.my_db_cluster_credentials
   vpc_id               = data.terraform_remote_state.vpc.vpc_id
   subnet_ids           = data.terraform_remote_state.vpc.subnet_private
+
+  allow_from_sgs = [
+    data.terraform_remote_state.setup.outputs.jumphost_cosg,
+    data.terraform_remote_state.something_else.outputs.sg,
+  ]
 
   instances = local.my_db_instances[var.environment]
 }
@@ -284,15 +297,6 @@ locals {
 within the module:
 `instances = local.my_db_instances[var.environment]`
 
-### Jumphost configuration
-
-as the jumphost has no access to the database you need to add the database security-group to the jumphost config
-
-the jumphost module supports this from v0.1.1 on
-
-`additional_sgs = [data.terraform_remote_state.database.my_db_cluster_intra_sg]`
-
-
 ### Using the database in Terraform
 
 Since the RDS is inside a private VPC, Terraform cannot directly use it within
@@ -368,6 +372,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.5.0 - Add `allow_from_sgs` to work around "5 security groups per EC2"-limit (deprecates `intra_sg`)
 - 0.4.1 - Set cost allocation tags
 - 0.4.0 - use map instead of list for instance config and use data for availibility zones now
 - 0.3.0 - Upgrade to terraform 0.12.x

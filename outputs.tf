@@ -14,7 +14,7 @@ output "sg" {
 }
 
 output "sg_intra" {
-  description = "Security group allowed for access"
+  description = "DEPRECATED: Security group allowed for access"
   value       = aws_security_group.intra.id
 }
 
