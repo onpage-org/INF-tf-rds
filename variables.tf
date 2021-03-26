@@ -80,3 +80,8 @@ variable "instances" {
   }))
   default = {}
 }
+
+variable "allow_from_sgs" {
+  description = "a list of security groups for which ingress rules are created"
+  default     = []
+}
