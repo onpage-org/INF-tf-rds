@@ -251,12 +251,11 @@ locals {
 
 ### Instance configuration
 
-Amount, type and failover priority are specified as a list where:
-- The amount of instances is the length of the list
-- The `promotion_tier`/failover priority is a number from 0-15 (highest to
+Amount, type and failover priority are specified as a map with:
+- key: Name of the database instance
+- `tier`: The `promotion_tier`/failover priority, number between 0-15 (highest to
   lowest priority)
-- Separating `:`
-- The `instance_class`/instance size (see [AWS Documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html))
+- `instance_type`: The `instance_type`/instance size (see [AWS Documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html))
 
 ```hcl
 locals {
