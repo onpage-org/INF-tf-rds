@@ -371,6 +371,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.2.2 - Added serverless engine_mode
 - 0.5.0 - Add `allow_from_sgs` to work around "5 security groups per EC2"-limit (deprecates `intra_sg`)
 - 0.4.1 - Set cost allocation tags
 - 0.4.0 - use map instead of list for instance config and use data for availibility zones now
