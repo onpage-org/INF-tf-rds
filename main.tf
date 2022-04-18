@@ -2,7 +2,7 @@ data "aws_region" "current" {}
 data "aws_availability_zones" "available" {}
 
 resource "aws_rds_cluster_instance" "instance" {
-  for_each = var.engine_mode != "serverless" ? length(var.instances) : 0
+  for_each = var.engine_mode != "serverless" ? var.instances : {}
 
   tags                         = merge(local.tags, { type = "db" })
   cluster_identifier           = aws_rds_cluster.cluster[0].id
