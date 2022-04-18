@@ -2,7 +2,7 @@ data "aws_region" "current" {}
 data "aws_availability_zones" "available" {}
 
 resource "aws_rds_cluster_instance" "instance" {
-  for_each = var.instances
+  for_each = var.engine_mode != "serverless" ? length(var.instances) : 0
 
   tags                         = merge(local.tags, { type = "db" })
   cluster_identifier           = aws_rds_cluster.cluster.id
@@ -22,6 +22,7 @@ resource "random_id" "final_snapshot" {
 }
 
 resource "aws_rds_cluster" "cluster" {
+  count = var.engine_mode != "serverless" ? 1 : 0
   lifecycle {
     ignore_changes = [final_snapshot_identifier]
   }
@@ -43,6 +44,44 @@ resource "aws_rds_cluster" "cluster" {
   apply_immediately               = var.apply_immediately
   backtrack_window                = var.backtrack_window
   storage_encrypted               = true
+}
+
+resource "aws_rds_cluster" "serverless" {
+  count = var.engine_mode == "serverless" ? 1 : 0
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+      engine_version,
+    ]
+  }
+
+  tags               = var.tags
+  cluster_identifier = var.name
+  engine             = var.engine
+  engine_version     = var.engine_version
+  engine_mode        = "serverless"
+
+  availability_zones              = data.aws_availability_zones.available.names
+  master_username                 = var.master_credentials["user"]
+  master_password                 = var.master_credentials["password"]
+  backup_retention_period         = var.backup_retention_period
+  preferred_backup_window         = var.preferred_backup_window
+  preferred_maintenance_window    = var.preferred_maintenance_window
+  final_snapshot_identifier       = random_id.final_snapshot.hex
+  vpc_security_group_ids          = [aws_security_group.sg.id]
+  db_subnet_group_name            = aws_db_subnet_group.sng.id
+  apply_immediately               = var.apply_immediately
+  backtrack_window                = var.backtrack_window
+  storage_encrypted               = true
+  db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
+
+  scaling_configuration {
+    auto_pause               = var.auto_pause
+    max_capacity             = var.max_capacity
+    min_capacity             = var.min_capacity
+    seconds_until_auto_pause = var.seconds_until_auto_pause
+  }
 }
 
 resource "aws_db_subnet_group" "sng" {
@@ -76,8 +115,8 @@ resource "aws_security_group_rule" "allow_sg" {
   count = length(var.allow_from_sgs)
 
   type      = "ingress"
-  from_port = aws_rds_cluster.cluster.port
-  to_port   = aws_rds_cluster.cluster.port
+  from_port = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.port) : join(",", aws_rds_cluster.serverless.*.port)
+  to_port   = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.port) : join(",", aws_rds_cluster.serverless.*.port)
   protocol  = "tcp"
 
   source_security_group_id = var.allow_from_sgs[count.index]
@@ -87,8 +126,8 @@ resource "aws_security_group_rule" "allow_sg" {
 // DEPRECATED
 resource "aws_security_group_rule" "sg_ingress" {
   type      = "ingress"
-  from_port = aws_rds_cluster.cluster.port
-  to_port   = aws_rds_cluster.cluster.port
+  from_port = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.port) : join(",", aws_rds_cluster.serverless.*.port)
+  to_port   = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.port) : join(",", aws_rds_cluster.serverless.*.port)
   protocol  = "tcp"
 
   security_group_id        = aws_security_group.sg.id

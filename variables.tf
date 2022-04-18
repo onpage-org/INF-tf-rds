@@ -85,3 +85,23 @@ variable "allow_from_sgs" {
   description = "a list of security groups for which ingress rules are created"
   default     = []
 }
+
+variable "engine_mode" {
+  default = "provisioned"
+}
+
+variable "auto_pause" {
+  default = "false"
+}
+
+variable "max_capacity" {
+  default = 2
+}
+
+variable "min_capacity" {
+  default = 1
+}
+
+variable "seconds_until_auto_pause" {
+  default = 300
+}

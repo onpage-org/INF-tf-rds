@@ -6,7 +6,7 @@ resource "aws_route53_record" "writer" {
   name = "${var.name}-db-write.${var.domain}."
 
   records = [
-    aws_rds_cluster.cluster.endpoint,
+    var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.endpoint) : join(",", aws_rds_cluster.serverless.*.endpoint),
   ]
 
   ttl     = "60"
@@ -15,10 +15,11 @@ resource "aws_route53_record" "writer" {
 }
 
 resource "aws_route53_record" "reader" {
-  name = "${var.name}-db-read.${var.domain}."
+  count = var.engine_mode != "serverless" ? 1 : 0
+  name  = "${var.name}-db-read.${var.domain}."
 
   records = [
-    aws_rds_cluster.cluster.reader_endpoint,
+    aws_rds_cluster.cluster[0].reader_endpoint,
   ]
 
   ttl     = "60"

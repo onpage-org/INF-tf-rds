@@ -221,6 +221,30 @@ module "my_db_cluster" {
 }
 ```
 
+#### Aurora Serverless
+```hcl
+module "serverless" {
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.2"
+  tags                     = "${local.common_tags}"
+  domain                   = "${local.domain}"
+  name                     = "my_db_cluster_name"
+  engine                   = "aurora"
+  engine_mode              = "serverless"
+  engine_version           = "5.6.10a"
+  master_credentials       = "${local.authentication_db_credentials}"
+  vpc_id                   = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids               = "${data.terraform_remote_state.vpc.subnet_private}"
+  apply_immediately        = true
+  availability_zones       = ["a", "b", "c"]
+  backtrack_window         = 0
+  backup_retention_period  = 30
+  auto_pause               = true
+  max_capacity             = 2
+  min_capacity             = 1
+  seconds_until_auto_pause = 300
+}
+```
+
 ### Master user credentials
 
 To not write the credentials in git, we use `random_id` and `random_password`.
@@ -371,7 +395,7 @@ provider "mysql" {
 
 ## Changelog
 
-- 0.2.2 - Added serverless engine_mode
+- 0.5.1 - Added serverless engine_mode
 - 0.5.0 - Add `allow_from_sgs` to work around "5 security groups per EC2"-limit (deprecates `intra_sg`)
 - 0.4.1 - Set cost allocation tags
 - 0.4.0 - use map instead of list for instance config and use data for availibility zones now
