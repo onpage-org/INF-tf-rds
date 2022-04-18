@@ -5,7 +5,7 @@ output "writer_fqdn" {
 
 output "reader_fqdn" {
   description = "Domain name for reader endpoint"
-  value       = aws_route53_record.reader.fqdn
+  value       = join(",", aws_route53_record.reader.*.fqdn)
 }
 
 output "sg" {

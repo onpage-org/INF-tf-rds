@@ -5,7 +5,7 @@ resource "aws_rds_cluster_instance" "instance" {
   for_each = var.engine_mode != "serverless" ? length(var.instances) : 0
 
   tags                         = merge(local.tags, { type = "db" })
-  cluster_identifier           = aws_rds_cluster.cluster.id
+  cluster_identifier           = aws_rds_cluster.cluster[0].id
   identifier                   = "${var.name}-${each.key}"
   engine                       = var.engine
   engine_version               = var.engine_version
