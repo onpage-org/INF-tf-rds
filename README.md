@@ -224,7 +224,7 @@ module "my_db_cluster" {
 #### Aurora Serverless
 ```hcl
 module "serverless" {
-  source = "github.com/ryte/INF-tf-rds.git?ref=v0.2.2"
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.5.1"
   tags                     = "${local.common_tags}"
   domain                   = "${local.domain}"
   name                     = "my_db_cluster_name"
@@ -235,13 +235,13 @@ module "serverless" {
   vpc_id                   = "${data.terraform_remote_state.vpc.vpc_id}"
   subnet_ids               = "${data.terraform_remote_state.vpc.subnet_private}"
   apply_immediately        = true
-  availability_zones       = ["a", "b", "c"]
   backtrack_window         = 0
   backup_retention_period  = 30
   auto_pause               = true
   max_capacity             = 2
   min_capacity             = 1
   seconds_until_auto_pause = 300
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.custom_serverless.name
 }
 ```
 
