@@ -87,25 +87,31 @@ variable "allow_from_sgs" {
 }
 
 variable "engine_mode" {
-  default = "provisioned"
+  description = "The database engine mode. Defaults to: provisioned, set to serverless if you want to create rds-serverless"
+  default     = "provisioned"
 }
 
 variable "auto_pause" {
-  default = "false"
+  description = "Whether to enable automatic pause. A DB cluster can be paused only when it's idle (it has no connections)."
+  default     = false
 }
 
 variable "max_capacity" {
-  default = 2
+  description = "The maximum capacity for an Aurora DB cluster in serverless DB engine mode."
+  default     = 2
 }
 
 variable "min_capacity" {
-  default = 1
+  description = "The minimum capacity for an Aurora DB cluster in serverless DB engine mode."
+  default     = 1
 }
 
 variable "seconds_until_auto_pause" {
-  default = 300
+  description = "The time, in seconds, before an Aurora DB cluster in serverless mode is paused."
+  default     = 300
 }
 
 variable "db_cluster_parameter_group_name" {
-  default = ""
+  description = "A cluster parameter group to associate with the cluster."
+  default     = ""
 }
