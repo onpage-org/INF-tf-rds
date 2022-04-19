@@ -225,15 +225,15 @@ module "my_db_cluster" {
 ```hcl
 module "serverless" {
   source = "github.com/ryte/INF-tf-rds.git?ref=v0.5.1"
-  tags                     = "${local.common_tags}"
-  domain                   = "${local.domain}"
+  tags                     = local.common_tags
+  domain                   = local.domain
   name                     = "my_db_cluster_name"
   engine                   = "aurora"
   engine_mode              = "serverless"
   engine_version           = "5.6.10a"
-  master_credentials       = "${local.authentication_db_credentials}"
-  vpc_id                   = "${data.terraform_remote_state.vpc.vpc_id}"
-  subnet_ids               = "${data.terraform_remote_state.vpc.subnet_private}"
+  master_credentials       = local.authentication_db_credentials
+  vpc_id                   = data.terraform_remote_state.vpc.vpc_id
+  subnet_ids               = data.terraform_remote_state.vpc.subnet_private
   apply_immediately        = true
   backtrack_window         = 0
   backup_retention_period  = 30
