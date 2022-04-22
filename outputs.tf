@@ -5,7 +5,7 @@ output "writer_fqdn" {
 
 output "reader_fqdn" {
   description = "Domain name for reader endpoint"
-  value       = aws_route53_record.reader.fqdn
+  value       = join(",", aws_route53_record.reader.*.fqdn)
 }
 
 output "sg" {
@@ -20,10 +20,10 @@ output "sg_intra" {
 
 output "cluster_arn" {
   description = "Aurora RDS cluster ARN"
-  value       = aws_rds_cluster.cluster.arn
+  value       = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.arn) : join(",", aws_rds_cluster.serverless.*.arn)
 }
 
 output "cluster_port" {
   description = "Database port"
-  value       = aws_rds_cluster.cluster.port
+  value       = var.engine_mode != "serverless" ? join(",", aws_rds_cluster.cluster.*.arn) : join(",", aws_rds_cluster.serverless.*.arn)
 }

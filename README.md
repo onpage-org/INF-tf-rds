@@ -10,45 +10,68 @@ and currently maintained by the [INF](https://github.com/orgs/ryte/teams/inf).
 
 The following requirements are needed by this module:
 
-- terraform (>= 0.12)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 0.12)
 
 ## Providers
 
 The following providers are used by this module:
 
-- aws
+- <a name="provider_aws"></a> [aws](#provider\_aws)
 
-- random
+- <a name="provider_random"></a> [random](#provider\_random)
+
+## Modules
+
+No modules.
+
+## Resources
+
+The following resources are used by this module:
+
+- [aws_db_subnet_group.sng](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) (resource)
+- [aws_rds_cluster.cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) (resource)
+- [aws_rds_cluster.serverless](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) (resource)
+- [aws_rds_cluster_instance.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance) (resource)
+- [aws_route53_record.reader](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) (resource)
+- [aws_route53_record.writer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) (resource)
+- [aws_security_group.intra](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) (resource)
+- [aws_security_group.sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) (resource)
+- [aws_security_group_rule.allow_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) (resource)
+- [aws_security_group_rule.sg_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) (resource)
+- [random_id.final_snapshot](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) (resource)
+- [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) (data source)
+- [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) (data source)
+- [aws_route53_zone.zone](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) (data source)
 
 ## Required Inputs
 
 The following input variables are required:
 
-### domain
+### <a name="input_domain"></a> [domain](#input\_domain)
 
 Description: Domain in which the FQDNs are created
 
 Type: `any`
 
-### master\_credentials
+### <a name="input_master_credentials"></a> [master\_credentials](#input\_master\_credentials)
 
 Description: Username and password for master user (see [Master user credentials](#master-user-credentials))
 
 Type: `map(string)`
 
-### name
+### <a name="input_name"></a> [name](#input\_name)
 
 Description: Cluster name and instance name prefix (also used to generate FQDNs)
 
 Type: `any`
 
-### subnet\_ids
+### <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids)
 
 Description: Subnets for the Aurora RDS (should be private subnet)
 
 Type: `list(string)`
 
-### vpc\_id
+### <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id)
 
 Description: VPC id the subnets will be defined in
 
@@ -58,7 +81,7 @@ Type: `any`
 
 The following input variables are optional (have default values):
 
-### allow\_from\_sgs
+### <a name="input_allow_from_sgs"></a> [allow\_from\_sgs](#input\_allow\_from\_sgs)
 
 Description: a list of security groups for which ingress rules are created
 
@@ -66,7 +89,7 @@ Type: `list`
 
 Default: `[]`
 
-### apply\_immediately
+### <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately)
 
 Description: Specifies whether any cluster modifications are applied immediately, or during the next maintenance window
 
@@ -74,7 +97,15 @@ Type: `bool`
 
 Default: `false`
 
-### backtrack\_window
+### <a name="input_auto_pause"></a> [auto\_pause](#input\_auto\_pause)
+
+Description: Whether to enable automatic pause. A DB cluster can be paused only when it's idle (it has no connections).
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_backtrack_window"></a> [backtrack\_window](#input\_backtrack\_window)
 
 Description: The target backtrack window, in seconds. Only available for aurora engine currently (as of 2018-11-06)
 
@@ -82,7 +113,7 @@ Type: `number`
 
 Default: `0`
 
-### backup\_retention\_period
+### <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period)
 
 Description: Days to keep backups
 
@@ -90,7 +121,7 @@ Type: `number`
 
 Default: `30`
 
-### cloudwatch\_log\_types
+### <a name="input_cloudwatch_log_types"></a> [cloudwatch\_log\_types](#input\_cloudwatch\_log\_types)
 
 Description: Log types to write to cloudwatch (audit, error, general, slowquery)
 
@@ -104,7 +135,15 @@ Default:
 ]
 ```
 
-### engine
+### <a name="input_db_cluster_parameter_group_name"></a> [db\_cluster\_parameter\_group\_name](#input\_db\_cluster\_parameter\_group\_name)
+
+Description: A cluster parameter group to associate with the cluster.
+
+Type: `string`
+
+Default: `""`
+
+### <a name="input_engine"></a> [engine](#input\_engine)
 
 Description: Aurora RDS engine (aurora-mysql or aurora-postgresql)
 
@@ -112,7 +151,15 @@ Type: `string`
 
 Default: `"aurora-mysql"`
 
-### engine\_version
+### <a name="input_engine_mode"></a> [engine\_mode](#input\_engine\_mode)
+
+Description: The database engine mode. Defaults to: provisioned, set to serverless if you want to create rds-serverless
+
+Type: `string`
+
+Default: `"provisioned"`
+
+### <a name="input_engine_version"></a> [engine\_version](#input\_engine\_version)
 
 Description: Version of the DB engine
 
@@ -120,7 +167,7 @@ Type: `string`
 
 Default: `"5.7.12"`
 
-### instances
+### <a name="input_instances"></a> [instances](#input\_instances)
 
 Description: priority and type of instances (see [Instance configuration](#instance-configuration))
 
@@ -135,7 +182,23 @@ map(object({
 
 Default: `{}`
 
-### performance\_insights\_enabled
+### <a name="input_max_capacity"></a> [max\_capacity](#input\_max\_capacity)
+
+Description: The maximum capacity for an Aurora DB cluster in serverless DB engine mode.
+
+Type: `number`
+
+Default: `2`
+
+### <a name="input_min_capacity"></a> [min\_capacity](#input\_min\_capacity)
+
+Description: The minimum capacity for an Aurora DB cluster in serverless DB engine mode.
+
+Type: `number`
+
+Default: `1`
+
+### <a name="input_performance_insights_enabled"></a> [performance\_insights\_enabled](#input\_performance\_insights\_enabled)
 
 Description: Enable performance insights
 
@@ -143,7 +206,7 @@ Type: `bool`
 
 Default: `true`
 
-### preferred\_backup\_window
+### <a name="input_preferred_backup_window"></a> [preferred\_backup\_window](#input\_preferred\_backup\_window)
 
 Description: The daily time range (UTC) during which automated backups are created if automated backups are enabled
 
@@ -151,7 +214,7 @@ Type: `string`
 
 Default: `"00:00-02:00"`
 
-### preferred\_maintenance\_window
+### <a name="input_preferred_maintenance_window"></a> [preferred\_maintenance\_window](#input\_preferred\_maintenance\_window)
 
 Description: The weekly time range (UTC) during which system maintenance can occur
 
@@ -159,7 +222,15 @@ Type: `string`
 
 Default: `"Mon:02:00-Mon:04:00"`
 
-### tags
+### <a name="input_seconds_until_auto_pause"></a> [seconds\_until\_auto\_pause](#input\_seconds\_until\_auto\_pause)
+
+Description: The time, in seconds, before an Aurora DB cluster in serverless mode is paused.
+
+Type: `number`
+
+Default: `300`
+
+### <a name="input_tags"></a> [tags](#input\_tags)
 
 Description: common tags to add to the ressources
 
@@ -171,30 +242,29 @@ Default: `{}`
 
 The following outputs are exported:
 
-### cluster\_arn
+### <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn)
 
 Description: Aurora RDS cluster ARN
 
-### cluster\_port
+### <a name="output_cluster_port"></a> [cluster\_port](#output\_cluster\_port)
 
 Description: Database port
 
-### reader\_fqdn
+### <a name="output_reader_fqdn"></a> [reader\_fqdn](#output\_reader\_fqdn)
 
 Description: Domain name for reader endpoint
 
-### sg
+### <a name="output_sg"></a> [sg](#output\_sg)
 
 Description: Security group for database
 
-### sg\_intra
+### <a name="output_sg_intra"></a> [sg\_intra](#output\_sg\_intra)
 
 Description: DEPRECATED: Security group allowed for access
 
-### writer\_fqdn
+### <a name="output_writer_fqdn"></a> [writer\_fqdn](#output\_writer\_fqdn)
 
 Description: Domain name for writer endpoint
-
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Usage
 
@@ -218,6 +288,32 @@ module "my_db_cluster" {
   ]
 
   instances = local.my_db_instances[var.environment]
+}
+```
+
+#### Aurora Serverless
+```hcl
+module "serverless" {
+  source = "github.com/ryte/INF-tf-rds.git?ref=v0.5.1"
+
+  tags                     = local.common_tags
+  domain                   = local.domain
+  name                     = "my_db_cluster_name"
+  engine                   = "aurora"
+  engine_mode              = "serverless"
+  engine_version           = "5.6.10a"
+  master_credentials       = local.authentication_db_credentials
+  vpc_id                   = data.terraform_remote_state.vpc.vpc_id
+  subnet_ids               = data.terraform_remote_state.vpc.subnet_private
+  apply_immediately        = true
+  backtrack_window         = 0
+  backup_retention_period  = 30
+  auto_pause               = true
+  max_capacity             = 2
+  min_capacity             = 1
+  seconds_until_auto_pause = 300
+
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.custom_serverless.name
 }
 ```
 
@@ -371,6 +467,7 @@ provider "mysql" {
 
 ## Changelog
 
+- 0.5.1 - Add `engine_mode` with serverless (default is provisioned)
 - 0.5.0 - Add `allow_from_sgs` to work around "5 security groups per EC2"-limit (deprecates `intra_sg`)
 - 0.4.1 - Set cost allocation tags
 - 0.4.0 - use map instead of list for instance config and use data for availibility zones now
