@@ -295,6 +295,7 @@ module "my_db_cluster" {
 ```hcl
 module "serverless" {
   source = "github.com/ryte/INF-tf-rds.git?ref=v0.5.1"
+
   tags                     = local.common_tags
   domain                   = local.domain
   name                     = "my_db_cluster_name"
@@ -311,6 +312,7 @@ module "serverless" {
   max_capacity             = 2
   min_capacity             = 1
   seconds_until_auto_pause = 300
+
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.custom_serverless.name
 }
 ```
