@@ -43,6 +43,15 @@ resource "aws_rds_cluster" "cluster" {
   apply_immediately               = var.apply_immediately
   backtrack_window                = var.backtrack_window
   storage_encrypted               = true
+
+  scaling_configuration = {    
+    auto_pause               = var.scaling_auto_pause 
+    min_capacity             = var.scaling_min_capacity
+    max_capacity             = var.scaling_max_capacity 
+    seconds_until_auto_pause = var.scaling_seconds_until_auto_pause
+    timeout_action           = var.scaling_timeout_action
+  }
+
 }
 
 resource "aws_db_subnet_group" "sng" {

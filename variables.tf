@@ -85,3 +85,28 @@ variable "allow_from_sgs" {
   description = "a list of security groups for which ingress rules are created"
   default     = []
 }
+
+variable "scaling_auto_pause" {
+  description = "Cluster auto pause time for scaling operations"
+  default = true
+}
+
+variable "scaling_min_capacity" {
+  description = "Cluster scaling minimum capacity"
+  default = 2
+}
+
+variable "scaling_max_capacity" {
+  description = "Cluster scaling maximum capacity"
+  default = 16
+}
+
+variable "scaling_seconds_until_auto_pause" {
+  description = "Cluster scaling wait time for running connections until force pause"
+  default = 300
+}
+
+variable "scaling_timeout_action" {
+  description = "Default action to take after scaling wait time have lapsed"
+  default = "ForceApplyCapacityChange"
+}
