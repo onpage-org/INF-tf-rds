@@ -44,7 +44,7 @@ resource "aws_rds_cluster" "cluster" {
   backtrack_window                = var.backtrack_window
   storage_encrypted               = true
 
-  scaling_configuration = {    
+  scaling_configuration {    
     auto_pause               = var.scaling_auto_pause 
     min_capacity             = var.scaling_min_capacity
     max_capacity             = var.scaling_max_capacity 
