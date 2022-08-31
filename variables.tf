@@ -88,20 +88,25 @@ variable "allow_from_sgs" {
 
 variable "scaling_auto_pause" {
   description = "Cluster auto pause time for scaling operations (boolean, required: no)"
+  type = bool
 }
 
 variable "scaling_min_capacity" {
   description = "Cluster scaling minimum capacity (integer, valid (MySQL): 1..64,128,256 - (Postgresql): 1..64, 192,384, required: no)"
+  type = number
 }
 
 variable "scaling_max_capacity" {
   description = "Cluster scaling maximum capacity (integer, valid (MySQL): 1..64,128,256 - (Postgresql): 1..64, 192,384, required: no)"
+  type = number
 }
 
 variable "scaling_seconds_until_auto_pause" {
   description = "Cluster scaling wait time for running connections until force pause (integer, valid: 300-86.400, required: no)"
+  type = number
 }
 
 variable "scaling_timeout_action" {
   description = "Default action to take after scaling wait time have lapsed (string, valid: ForceApplyCapacityChange or RollbackCapacityChange, required: no)"
+  type = string
 }
