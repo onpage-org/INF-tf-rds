@@ -22,6 +22,11 @@ variable "engine_version" {
   default     = "5.7.12"
 }
 
+variable "enable_http_endpoint" {
+  description = "Specify whether to enable HTTP endpoint (data API)"
+  default     = "false"
+}
+
 variable "master_credentials" {
   description = "Username and password for master user (see [Master user credentials](#master-user-credentials))"
   type        = map(string)
