@@ -61,7 +61,7 @@ resource "aws_rds_cluster" "serverless" {
   engine             = var.engine
   engine_version     = var.engine_version
   engine_mode        = "serverless"
-
+  enable_http_endpoint            = var.enable_http_endpoint
   availability_zones              = data.aws_availability_zones.available.names
   master_username                 = var.master_credentials["user"]
   master_password                 = var.master_credentials["password"]
