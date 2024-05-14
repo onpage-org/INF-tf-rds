@@ -29,6 +29,7 @@ resource "aws_rds_cluster_instance" "instance" {
   promotion_tier               = element(split(":", element(var.instances, count.index)), 0)
   preferred_maintenance_window = var.preferred_maintenance_window
   db_subnet_group_name         = aws_db_subnet_group.sng.id
+  ca_cert_identifier           = var.ca_cert_identifier
 
   apply_immediately = var.apply_immediately
 }

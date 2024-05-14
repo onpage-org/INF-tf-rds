@@ -39,6 +39,10 @@ variable "preferred_maintenance_window" {
   default = "Mon:02:00-Mon:04:00"
 }
 
+variable "ca_cert_identifier" {
+  default = ""
+}
+
 variable "vpc_id" {
 }
 
